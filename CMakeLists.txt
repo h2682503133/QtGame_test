@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(NewGame VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOUIC ON)     
+set(CMAKE_AUTOMOC ON)      
+set(CMAKE_AUTORCC ON)
+
+#寻找文件
+include_directories(${CMAKE_SOURCE_DIR}/include)  
+include_directories(${CMAKE_SOURCE_DIR}/src)      
+include_directories(${CMAKE_SOURCE_DIR}/ui)
+
+file(GLOB_RECURSE ALL_SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE ALL_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE ALL_UIS ${CMAKE_SOURCE_DIR}/ui/*.ui)
+
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_SOURCE_DIR}/ui)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
+qt_standard_project_setup()
+
+qt_add_executable(${PROJECT_NAME}
+    ${ALL_SOURCES}
+    ${ALL_HEADERS}
+    ${ALL_UIS}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+#拷贝图像
+set(IMG_SOURCE_DIR "${CMAKE_SOURCE_DIR}/img")
+set(IMG_DEST_DIR "${CMAKE_BINARY_DIR}/img")
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD  # 编译生成exe之后执行拷贝
+    COMMAND ${CMAKE_COMMAND} -E copy_directory  # CMake内置的拷贝目录命令
+    ${IMG_SOURCE_DIR} ${IMG_DEST_DIR}           # 源目录 -> 目标目录
+    COMMENT "自动拷贝图片文件夹: ${IMG_SOURCE_DIR} -> ${IMG_DEST_DIR}" # 编译日志提示
+)

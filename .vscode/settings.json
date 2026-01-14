@@ -1,0 +1,15 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_PREFIX_PATH": "D:/DuanKou/tools/Qt/6.10.1/mingw_64"
+    },
+    "qt.designer.path": "D:/DuanKou/tools/Qt/Tools/QtCreator/bin/designer.exe",
+    "qt.mingw.binPath": "D:/DuanKou/tools/Qt/Tools/mingw1310_64/bin",
+    "files.associations": {
+        "*.h": "cpp",
+        "*.ui": "qt-ui",
+        "QWidget": "cpp",
+        "QTimer": "cpp",
+        "QPainter": "cpp",
+        "QKeyEvent": "cpp"
+    }
+}
