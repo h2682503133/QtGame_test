@@ -1,10 +1,10 @@
 #include "GameObject.h"
+#include <QMessageBox>
 #include <cmath>
 
 // 无参构造
-GameObject::GameObject()
-    : m_speed(0)
-    , m_isAlive(true)
+GameObject::GameObject(): QObject(nullptr)
+    , m_speed(0)
     , m_collideCenter(0, 0)
     , m_collideRadius(0)
     , m_imgRect(0, 0, 0, 0)
@@ -17,9 +17,8 @@ GameObject::GameObject()
 }
 
 // 有参全构造 - 初始化坐标/贴图尺寸/碰撞半径/速度
-GameObject::GameObject(int x, int y, int imgWidth, int imgHeight, int collideRadius, int speed)
-    : m_speed(speed)
-    , m_isAlive(true)
+GameObject::GameObject(int x, int y, int imgWidth, int imgHeight, int collideRadius, int speed): QObject(nullptr)
+    , m_speed(speed)
     , m_collideCenter(x + imgWidth/2, y + imgHeight/2) // 碰撞圆心默认居中图像
     , m_collideRadius(collideRadius)
     , m_imgRect(x, y, imgWidth, imgHeight)
@@ -30,7 +29,14 @@ GameObject::GameObject(int x, int y, int imgWidth, int imgHeight, int collideRad
     , m_camp(0)
 {
 }
-
+bool GameObject::isAlive() const
+{
+    return m_isAlive;
+}
+void GameObject::setAlive(bool alive)
+{
+    m_isAlive = alive;
+}
 QPoint GameObject::getCollideCenter() const
 {
     return m_collideCenter;
@@ -54,14 +60,13 @@ void GameObject::setCollideRadius(int radius)
 // 圆形碰撞检测
 bool GameObject::isCircleCollide(const GameObject &other) const
 {
-    int dx = m_collideCenter.x() - other.m_collideCenter.x();
-    int dy = m_collideCenter.y() - other.m_collideCenter.y();
-    int distanceSqrt = dx*dx + dy*dy; // 平方和，避免开方，提升性能
-    int radiusSum = m_collideRadius + other.m_collideRadius;
-    return distanceSqrt <= radiusSum * radiusSum;
+    if (m_collideRadius <= 0 || other.m_collideRadius <= 0) return false;
+    const int dx = m_collideCenter.x() - other.m_collideCenter.x();
+    const int dy = m_collideCenter.y() - other.m_collideCenter.y();
+    const int distanceSqrt = dx*dx + dy*dy;
+    return distanceSqrt <= (m_collideRadius + other.m_collideRadius) * (m_collideRadius + other.m_collideRadius);
 }
-
-// ===================== 核心要求2 独立贴图+独立碰撞盒 共同移动 全部实现 =====================
+//贴图相关
 void GameObject::setPixmap(const QPixmap &pix)
 {
     m_img = pix;
@@ -78,19 +83,43 @@ QRect GameObject::getImgRect() const
 }
 void GameObject::loadImgFromFile(const QString&  imgName)
 {
-    m_img.load( "./img/"+imgName+".png");
+    m_img = QPixmap();
+    m_imgRect.setSize(QSize(0, 0));
+    QString imgFullPath = "./img/" + imgName + ".png";
+
+    try {
+        // 加载图片
+        m_img = QPixmap(imgFullPath);
+
+        //判断图片是否加载成功
+        if(m_img.isNull())
+        {
+            QMessageBox::critical(nullptr,  // 父窗口，nullptr=置顶全局弹窗
+                                  "图片加载致命错误",  // 弹窗标题（醒目红色错误标题）
+                                  QString("找不到图片文件！\n路径：%1\n请检查图片路径和文件是否存在！").arg(imgFullPath),
+                                  QMessageBox::Ok);
+            return;
+        }
+    } catch (...) {
+        //捕获所有未知异常
+        m_img = QPixmap();
+        m_imgRect.setSize(QSize(0, 0));
+        QMessageBox::critical(nullptr,  // 父窗口，nullptr=置顶全局弹窗
+                                  "图片加载致命错误",  // 弹窗标题（醒目红色错误标题）
+                                  QString("找不到图片文件！\n路径：%1\n请检查图片路径和文件是否存在！").arg(imgFullPath),
+                                  QMessageBox::Ok);
+        }
 }
 
 void GameObject::loadImgFromFile(const QString&  imgName, int showWidth, int showHeight)
 {
-    m_img = QPixmap("./img/"+imgName+".png").scaled(showWidth, showHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    loadImgFromFile(imgName);
+    m_img = m_img.scaled(showWidth, showHeight,Qt::KeepAspectRatio, Qt::SmoothTransformation);
     m_imgRect.setSize(QSize(showWidth, showHeight));
 }
 void GameObject::setImgSize(int w, int h)
 {
     m_imgRect.setSize(QSize(w, h));
-    // 图像尺寸改变，碰撞圆心默认居中图像，可选联动，也可手动修改
-    m_collideCenter = QPoint(m_imgRect.x() + w/2, m_imgRect.y() + h/2);
 }
 
 void GameObject::setImgPos(int x, int y)
@@ -100,7 +129,7 @@ void GameObject::setImgPos(int x, int y)
     m_collideCenter = QPoint(x + m_imgRect.width()/2, y + m_imgRect.height()/2);
 }
 
-// ===================== 核心要求3 血量/伤害/防御(乘算无敌) 全部实现 =====================
+//血量/伤害/防御(乘算无敌)
 int GameObject::getHp() const
 {
     return m_hp;
@@ -142,23 +171,21 @@ void GameObject::setDefense(float defense)
     m_defense = qBound(0.0f, defense, 1.0f); // 防御系数限制0~1，0无防御，1无敌
 }
 
-// 受击扣血核心：自动计算防御减伤，乘算逻辑，无敌判定，原代码优先无多余逻辑
+// 受击扣血核心：自动计算防御减伤，乘算逻辑，无敌判定
 void GameObject::takeDamage(int damage)
 {
-    if (m_defense >= 1.0f || !m_isAlive) // 无敌状态/已死亡 直接免伤
-        return;
-
-    int realDamage = static_cast<int>(damage * (1 - m_defense)); // 乘算减伤
-    realDamage = qMax(1, realDamage); // 保底1点伤害，避免0伤害
+    if (m_defense >= 1.0f || !m_isAlive) return;
+    int realDamage = static_cast<int>(damage * (1 - m_defense));
+    realDamage = qMax(1, realDamage);
     setHp(m_hp - realDamage);
-
-    if (m_hp <= 0) // 血量为0，标记死亡
+    if (m_hp <= 0)
     {
         m_isAlive = false;
+        this->deleteLater();
     }
 }
 
-int GameObject::GameObject::getCamp() const
+int GameObject::getCamp() const
 {
     return m_camp;
 }
@@ -179,42 +206,6 @@ int GameObject::getSpeed() const
 {
     return m_speed;
 }
-
-bool GameObject::isAlive() const
-{
-    return m_isAlive;
-}
-
-void GameObject::setSpeed(int speed)
-{
-    m_speed = speed;
-}
-
-void GameObject::setAlive(bool alive)
-{
-    m_isAlive = alive;
-}
-
-int GameObject::getX() const
-{
-    return m_imgRect.x(); // 对外X坐标默认取图像坐标，也可自定义为碰撞圆心X
-}
-
-int GameObject::getY() const
-{
-    return m_imgRect.y(); // 对外Y坐标默认取图像坐标，也可自定义为碰撞圆心Y
-}
-
-void GameObject::setX(int x)
-{
-    setImgPos(x, m_imgRect.y());
-}
-
-void GameObject::setY(int y)
-{
-    setImgPos(m_imgRect.x(), y);
-}
-
 
 void GameObject::moveOffset(int dx, int dy)
 {

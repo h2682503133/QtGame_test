@@ -1,7 +1,7 @@
 #include "EnemyBase.h"
 #include <QRandomGenerator>
 
-EnemyBase::EnemyBase(int winWidth)
+EnemyBase::EnemyBase(int winWidth,QObject *parent)
     : GameObject(0, 0, 40, 40, 18),  
       m_scoreReward(10),             
       m_enemySpeed(3),               
@@ -10,6 +10,7 @@ EnemyBase::EnemyBase(int winWidth)
       m_imgHeight(40),               
       m_collideRadius(18)             
 {
+    this->setParent(parent);
     this->setCamp(3);
 
    
@@ -29,7 +30,6 @@ void EnemyBase::move()
 {
     if (this->isAlive() && !m_isOutOfWindow)
     {
-        //自动同步 调用GameObject的moveOffset
         this->moveOffset(0, m_enemySpeed);
     }
 }
@@ -42,16 +42,21 @@ void EnemyBase::checkOutOfWindow(int winHeight)
         m_isOutOfWindow = true;
         this->setAlive(false); // 出界即死亡，等待主界面清理
     }
+    else
+    {
+        m_isOutOfWindow = false;
+    }
 }
 
 void EnemyBase::onEnemyDead()
 {
-    // 父类仅标记死亡，无其他逻辑
     this->setAlive(false);
+    emit enemyDead(this->getScoreReward());
 }
 
 void EnemyBase::loadEnemyResource()
 {
+
 }
 
 int EnemyBase::getScoreReward() const

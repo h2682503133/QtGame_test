@@ -12,7 +12,7 @@ void GameWidget::spawnEnemy()
     //权重随机抽取 命中对应的敌机类型项
     EnemyType curEnemyType = EnemyType::NormalEnemy;
     EnemyCreatorFunc curCreator = nullptr;
-    int randNum = QRandomGenerator::global()->bounded(0, m_totalWeight);
+    int randNum = QRandomGenerator::global()->bounded(1, m_totalWeight);
     int weightSum = 0;
     int targetIndex = -1;
 
@@ -26,22 +26,40 @@ void GameWidget::spawnEnemy()
             break;
         }
     }
-
+    
     // 命中成功，获取对应的敌机类型+创建函数
     if(targetIndex != -1 && targetIndex < m_enemyTypePool.size())
     {
         curEnemyType = m_enemyTypePool[targetIndex].type;
         curCreator = m_enemyTypePool[targetIndex].creator;
     }
-
+    
     //从敌机池取机 / 自动创建敌机
     EnemyBase* enemy = getEnemyFromPool();
     if (enemy == nullptr && curCreator != nullptr)
     {
         enemy = curCreator(this->width());
-        if(enemy) enemy->loadEnemyResource();
+        if(enemy) 
+        {   
+            QMetaObject::invokeMethod(enemy, &EnemyBase::loadEnemyResource, Qt::QueuedConnection);
+            enemy->setParent(this);
+        }
     }
-
+    else if(enemy != nullptr)
+    {
+        
+        enemy->disconnect(enemy,&EnemyBase::enemyDead, nullptr, nullptr);
+        enemy->setParent(this);
+    }
+    //绑定信号槽
+    /*
+    if(enemy && enemy->parent() == this)
+    {
+        connect(enemy, &EnemyBase::enemyDead, this, [this](int addScore){
+            this->score += addScore;
+        }, Qt::UniqueConnection);
+    }
+    */
     //敌机重置状态 加入活跃队列
     if(enemy)
     {
@@ -50,7 +68,6 @@ void GameWidget::spawnEnemy()
         int randomX = QRandomGenerator::global()->bounded(0, this->width() - enemy->getImgRect().width());
         enemy->setImgPos(randomX, 0);
         enemy->setCollideCenter(randomX + enemy->getImgRect().width()/2, enemy->getImgRect().height()/2);
-        m_activeEnemies.push_back(enemy);
     }
 }
 
@@ -71,18 +88,13 @@ void GameWidget::recycleEnemy(EnemyBase* enemy)
 {
     enemy->setAlive(false);
     m_enemyPool.push_back(enemy);
-    // 从活跃队列中移除该敌机
-    auto it = std::find(m_activeEnemies.begin(), m_activeEnemies.end(), enemy);
-    if (it != m_activeEnemies.end())
-    {
-        m_activeEnemies.erase(it);
-    }
 }
 
 //更新所有敌机的状态：移动 + 出界检测
 void GameWidget::updateAllEnemies()
 {
-    for (EnemyBase* enemy : m_activeEnemies)
+    QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
+    for (EnemyBase* enemy : enemyList)
     {
         if (enemy->isAlive())
         {
@@ -99,7 +111,6 @@ void GameWidget::updateAllEnemies()
         {
             // 敌机死亡则回收
             recycleEnemy(enemy);
-            score += enemy->getScoreReward();  //击落敌机加分
         }
     }
 }
@@ -107,7 +118,8 @@ void GameWidget::updateAllEnemies()
 //绘制所有敌机
 void GameWidget::drawAllEnemies(QPainter& painter)
 {
-    for (EnemyBase* enemy : m_activeEnemies)
+    QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
+    for (EnemyBase* enemy : enemyList)
     {
         if (enemy->isAlive())
         {
@@ -120,8 +132,8 @@ void GameWidget::drawAllEnemies(QPainter& painter)
 void GameWidget::checkPlayerEnemyCollision()
 {
     if (!m_player->isAlive() || gameOver) return;
-
-    for (EnemyBase* enemy : m_activeEnemies)
+    QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
+    for (EnemyBase* enemy : enemyList)
     {
         if (enemy->isAlive())
         {
@@ -132,6 +144,34 @@ void GameWidget::checkPlayerEnemyCollision()
                 gameOver = true;                           // 游戏结束
                 break;
             }
+        }
+    }
+}
+//初始化敌人生成池
+void GameWidget::initEnemyTypePool()
+{
+    m_enemyTypePool.clear();
+    m_weightList.clear();
+    m_totalWeight = 0;
+
+    EnemyTypeItem item1;
+    item1.type = EnemyType::NormalEnemy;
+    item1.creator = EnemyNormal::Create;
+    m_enemyTypePool.push_back(item1);
+    //遍历类型池累加总权重
+    for (const auto& item : m_enemyTypePool)
+    {
+        // 创建临时敌机对象，只为读取权重
+        EnemyBase* tempEnemy = item.creator(this->width());
+        if (tempEnemy)
+        {
+            int enemyWeight = tempEnemy->getWeight(); // 自动读取子类自身的权重
+            m_weightList.push_back(enemyWeight);      // 存入权重列表
+            m_totalWeight += enemyWeight;             // 自动累加总权重
+            tempEnemy->setParent(nullptr);  // 强制解除父对象（防止意外绑定）
+            tempEnemy->deleteLater();       // 延时销毁
+            tempEnemy = nullptr;
+            QCoreApplication::processEvents();
         }
     }
 }

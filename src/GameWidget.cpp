@@ -16,46 +16,32 @@ GameWidget::GameWidget(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("Qt飞机大战");
 
-    //初始化计时器
-    gameTimer = new QTimer(this);
-    connect(gameTimer, &QTimer::timeout, this, &GameWidget::gameUpdate);
-    gameTimer->start(16);
-
     m_enemyTypePool.clear();
     m_weightList.clear();
     m_totalWeight = 0;
-
-    EnemyTypeItem item1;
-    item1.type = EnemyType::NormalEnemy;
-    item1.creator = EnemyNormal::Create;
-    m_enemyTypePool.push_back(item1);
-
-
-    //遍历类型池累加总权重
-    for (const auto& item : m_enemyTypePool)
-    {
-        // 创建临时敌机对象，只为读取权重
-        EnemyBase* tempEnemy = item.creator(this->width());
-        if (tempEnemy)
-        {
-            int enemyWeight = tempEnemy->getWeight(); // 自动读取子类自身的权重
-            m_weightList.push_back(enemyWeight);      // 存入权重列表
-            m_totalWeight += enemyWeight;             // 自动累加总权重
-            delete tempEnemy; // 读完权重，销毁临时对象
-        }
-    }
-
-    enemyTimer = new QTimer(this);
-    connect(enemyTimer, &QTimer::timeout, this, &GameWidget::spawnEnemy);
-    enemyTimer->start(1000);
     
+    //初始化敌人生成池
+    initEnemyTypePool();
+
     //初始化自机
     playerSpeed = 8;
     m_player = new Player(this->width()/2 - 20, this->height() - 50);
     // 加载本地自机图片 + 指定尺寸
-    m_player->loadImgFromFile("./img/player.png", 50, 50);
+    m_player->loadImgFromFile("player", 50, 50);
 }
+void GameWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event); // 执行Qt原生的显示逻辑，必须加
 
+    //初始化计时器
+    gameTimer = new QTimer(this);
+    connect(gameTimer, &QTimer::timeout, this, &GameWidget::gameUpdate);
+    gameTimer->start(16);
+    
+    enemyTimer = new QTimer(this);
+    connect(enemyTimer, &QTimer::timeout, this, &GameWidget::spawnEnemy);
+    QTimer::singleShot(100, this, [=](){ enemyTimer->start(1000); });
+}
 GameWidget::~GameWidget()
 {
     //释放指针
@@ -83,6 +69,8 @@ void GameWidget::paintEvent(QPaintEvent *event)
     {
         painter.drawPixmap(m_player->getImgRect(), m_player->getPixmap());
     }
+    //绘制敌人
+    drawAllEnemies(painter);
 }
 
 void GameWidget::gameUpdate()
@@ -99,8 +87,11 @@ void GameWidget::gameUpdate()
     if(rightPressed)
         m_player->moveRight(this->width());
 
+    // 更新所有敌人
+    updateAllEnemies();
     //更新UI里的得分标签
     ui->label->setText(QString("得分：%1").arg(score));
 
+    
     update(); // 刷新画面，移动生效
 }

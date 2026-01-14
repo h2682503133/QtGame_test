@@ -22,6 +22,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void showEvent(QShowEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 
@@ -50,7 +51,6 @@ private:
     void onBtnStartClicked();
     void onBtnRestartClicked();
 
-    std::vector<EnemyBase*> m_activeEnemies;  // 屏幕中活跃的敌机
     std::vector<EnemyBase*> m_enemyPool;      // 敌机对象池-存放闲置敌机，复用无内存碎片
 
     EnemyBase* getEnemyFromPool();            // 从池中取出敌机
@@ -61,6 +61,7 @@ private:
     void checkPlayerEnemyCollision();         // 检测玩家与敌机碰撞
 
     //敌机生成相关
+    void initEnemyTypePool();                 // 初始化敌机类型池   
     std::vector<EnemyTypeItem> m_enemyTypePool;  // 敌机类型池：类型+创建函数
     std::vector<int> m_weightList;               // 自动读取的权重列表，和类型池一一对应
     int m_totalWeight = 0;                       // 总权重

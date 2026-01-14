@@ -21,14 +21,16 @@ struct EnemyTypeItem
 // 封装：所有敌机的通用数据、通用逻辑、统一接口、默认值设定
 class EnemyBase : public GameObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY_MOVE(EnemyBase) // 禁止拷贝移动，防止内存错误
 public:
-    explicit EnemyBase(int winWidth);
+    explicit EnemyBase(int winWidth, QObject *parent = nullptr);
+    explicit EnemyBase(QObject *parent = nullptr);
     virtual ~EnemyBase() override = default;
 
     void move() override;
     
-    virtual void loadEnemyResource();  // 加载敌机贴图+碰撞体积(子类必须重写，无默认实现)
+    virtual void loadEnemyResource()=0;  // 加载敌机贴图+碰撞体积(子类必须重写，无默认实现)
     virtual void onEnemyDead();        // 敌机死亡回调 有默认实现：空逻辑，仅标记死亡
     virtual void shootBullet() {}      // 发射子弹 空实现】，有子弹的敌机子类重写即可，无则不动
     //出界相关
@@ -52,7 +54,10 @@ protected:
     int         m_imgWidth;        // 敌机贴图宽度 有默认值
     int         m_imgHeight;       // 敌机贴图高度 有默认值
     int         m_collideRadius;   // 敌机碰撞半径 有默认值
-    int         m_weight = 1;      // 敌机生成概率权重值 基础默认为1
+    int         m_weight = 0;      // 敌机生成概率权重值 基础默认为0
+signals:  //敌机死亡信号，携带加分值
+    void enemyDead(int scoreReward);
 };
+
 
 #endif // ENEMYBASE_H
