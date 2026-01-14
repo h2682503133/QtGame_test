@@ -76,14 +76,14 @@ QRect GameObject::getImgRect() const
 {
     return m_imgRect;
 }
-void GameObject::loadImgFromFile(const QString& imgFilePath)
+void GameObject::loadImgFromFile(const QString&  imgName)
 {
-    m_img.load(imgFilePath);
+    m_img.load( "./img/"+imgName+".png");
 }
 
-void GameObject::loadImgFromFile(const QString& imgFilePath, int showWidth, int showHeight)
+void GameObject::loadImgFromFile(const QString&  imgName, int showWidth, int showHeight)
 {
-    m_img = QPixmap(imgFilePath).scaled(showWidth, showHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    m_img = QPixmap("./img/"+imgName+".png").scaled(showWidth, showHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     m_imgRect.setSize(QSize(showWidth, showHeight));
 }
 void GameObject::setImgSize(int w, int h)

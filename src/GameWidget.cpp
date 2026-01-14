@@ -12,7 +12,7 @@ GameWidget::GameWidget(QWidget *parent)
     , score(0)
     , gameOver(false)
 {
-    ui = new Ui::gamewidget();
+    ui = new Ui::Form();
     ui->setupUi(this);
     setWindowTitle("Qt飞机大战");
 
@@ -20,6 +20,30 @@ GameWidget::GameWidget(QWidget *parent)
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &GameWidget::gameUpdate);
     gameTimer->start(16);
+
+    m_enemyTypePool.clear();
+    m_weightList.clear();
+    m_totalWeight = 0;
+
+    EnemyTypeItem item1;
+    item1.type = EnemyType::NormalEnemy;
+    item1.creator = EnemyNormal::Create;
+    m_enemyTypePool.push_back(item1);
+
+
+    //遍历类型池累加总权重
+    for (const auto& item : m_enemyTypePool)
+    {
+        // 创建临时敌机对象，只为读取权重
+        EnemyBase* tempEnemy = item.creator(this->width());
+        if (tempEnemy)
+        {
+            int enemyWeight = tempEnemy->getWeight(); // 自动读取子类自身的权重
+            m_weightList.push_back(enemyWeight);      // 存入权重列表
+            m_totalWeight += enemyWeight;             // 自动累加总权重
+            delete tempEnemy; // 读完权重，销毁临时对象
+        }
+    }
 
     enemyTimer = new QTimer(this);
     connect(enemyTimer, &QTimer::timeout, this, &GameWidget::spawnEnemy);
@@ -61,50 +85,6 @@ void GameWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void GameWidget::keyPressEvent(QKeyEvent *event)
-{
-    if (gameOver) return;
-
-    switch (event->key()) {
-    case Qt::Key_Up:
-        upPressed = true;
-        break;
-    case Qt::Key_Down:
-        downPressed = true;
-        break;
-    case Qt::Key_Left:
-        leftPressed = true;
-        break;
-    case Qt::Key_Right:
-        rightPressed = true;
-        break;
-    case Qt::Key_Space:
-        break;
-    default:
-        QWidget::keyPressEvent(event);
-    }
-}
-
-void GameWidget::keyReleaseEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Up:
-        upPressed = false;
-        break;
-    case Qt::Key_Down:
-        downPressed = false;
-        break;
-    case Qt::Key_Left:
-        leftPressed = false;
-        break;
-    case Qt::Key_Right:
-        rightPressed = false;
-        break;
-    default:
-         QWidget::keyReleaseEvent(event);
-    }
-}
-
 void GameWidget::gameUpdate()
 {
     if (gameOver || m_player == nullptr || !m_player->isAlive()) return;
@@ -123,9 +103,4 @@ void GameWidget::gameUpdate()
     ui->label->setText(QString("得分：%1").arg(score));
 
     update(); // 刷新画面，移动生效
-}
-
-void GameWidget::spawnEnemy()
-{
-    if (gameOver) return;
 }

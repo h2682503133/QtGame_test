@@ -28,8 +28,8 @@ public:
     bool isCircleCollide(const GameObject& other) const; // 圆形与圆形碰撞检测核心函数
 
     // 本地图片文件加载接口
-    void loadImgFromFile(const QString& imgFilePath);
-    void loadImgFromFile(const QString& imgFilePath, int showWidth, int showHeight);
+    void loadImgFromFile(const QString&  imgName);
+    void loadImgFromFile(const QString&  imgName, int showWidth, int showHeight);
 
     // 贴图属性(显示用) - 尺寸/坐标 独立于碰撞盒，但是联动移动
     void setPixmap(const QPixmap& pix);   // 设置绑定的图像
