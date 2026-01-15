@@ -2,7 +2,7 @@
 #include "EnemyBullet.h"
 EnemyStatic::EnemyStatic(int winWidth,QObject *parent) : EnemyBase(winWidth)
 {
-    this->setWeight(2);
+    this->setWeight(4);
     this->setReady(true);
     this->setImgSize(50, 50);
     this->setCollideRadius(25);
@@ -11,7 +11,7 @@ EnemyStatic::EnemyStatic(int winWidth,QObject *parent) : EnemyBase(winWidth)
     this->setSpeed(1);
     this->setScoreReward(25);
 
-    m_shootInterval = 500; // 500毫秒一发
+    m_shootInterval = 1500; // 1500毫秒一发
     m_lastShootTime = QTime::currentTime();
 }
 //贴图加载函数

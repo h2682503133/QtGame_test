@@ -30,6 +30,7 @@ private slots:
     void gameUpdate();
     void spawnEnemy();
     void addEnemyScore(int addScore){score+=addScore;}
+    void gameOverSlot(){gameOver=true;}
     
 
 private:

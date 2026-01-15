@@ -18,8 +18,8 @@ PlayerBullet2::PlayerBullet2(int x, int y, QObject *parent)
     //子弹血量为1，击中即销毁
     this->setHp(1);
     this->setMaxHp(1);
-    //子弹无防御
-    this->setDefense(0.0);
+    //该子弹穿透防御为1
+    this->setDefense(1.0);
     
 }
 

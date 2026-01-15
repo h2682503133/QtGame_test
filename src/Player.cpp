@@ -8,12 +8,12 @@ Player::Player(int x, int y)
 {
     // 自机默认配置 - 玩家专属，初始化时自动绑定
     setCamp(2);       // 阵营：玩家阵营(2)
-    setHp(3);                   // 初始血量3条命
-    setMaxHp(3);                // 最大血量3条命
+    setHp(5);                   // 初始血量5条命
+    setMaxHp(5);                // 最大血量5条命
     setDamage(1);               // 子弹伤害1
     setDefense(0.0f);           // 默认无防御，可通过setInvincible(true)开启无敌
 
-    m_shootInterval = 300; // 300毫秒一发
+    m_shootInterval = 500; // 500毫秒一发
     m_lastShootTime = QTime::currentTime();
 }
 
@@ -46,9 +46,9 @@ void Player::shootBullet()
         }
         case 1: 
         {
-        // 出生位置：玩家贴图的正上方中心，Y轴-15 x轴左右10
+        // 出生位置：玩家贴图的正上方中心，Y轴-10 x轴左右10
             PlayerBullet1* bullet = new PlayerBullet1(this->getImgRect().center().x()-10, 
-                                                    this->getImgRect().top() - 15,
+                                                    this->getImgRect().top() - 10,
                                                     this->parent());
             bullet->initPlayerBullet(-90.0);
             bullet = new PlayerBullet1(this->getImgRect().center().x()+10, 
@@ -117,4 +117,10 @@ void Player::setInvincible(bool invincible)
 bool Player::isInvincible() const
 {
     return m_isInvincible;
+}
+
+void Player::OnDead()
+{
+    setAlive(false);
+    emit dead();
 }

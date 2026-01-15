@@ -62,7 +62,7 @@ void GameWidget::checkBulletCollisions()
                 if(enemy->isAlive() && bullet->isReady()&& !bullet->isSameCamp(enemy) && bullet->isCircleCollide(*enemy))
                 {
                     enemy->takeDamage(bullet->getDamage()); // 敌机扣血
-                    bullet->onDead();            // 子弹击中后死亡
+                    bullet->takeDamage(1);            // 子弹击中消耗一次次数
                     break;
                 }
             }
@@ -74,8 +74,8 @@ void GameWidget::checkBulletCollisions()
             if(m_player->isAlive() && !bullet->isSameCamp(m_player) && bullet->isCircleCollide(*m_player))
             {
                 m_player->takeDamage(bullet->getDamage()); // 玩家扣血
-                bullet->setAlive(false);                    // 子弹击中后死亡
-                if(!m_player->isAlive()) gameOver = true;  // 玩家死亡游戏结束
+                bullet->takeDamage(1);                    // 子弹击中消耗一次次数
+                if(!m_player->isAlive()) gameOver = true;  // 玩家死亡游戏结束 信号疑似有问题 手动游戏结束
             }
         }
     }

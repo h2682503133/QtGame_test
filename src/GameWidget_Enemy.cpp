@@ -143,7 +143,7 @@ void GameWidget::checkPlayerEnemyCollision()
     QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
     for (EnemyBase* enemy : enemyList)
     {
-        enemy->checkAllEnemyCollideWithPlayer(m_player,gameOver);
+        enemy->checkAllEnemyCollideWithPlayer(m_player, gameOver);
     }
 }
 //初始化敌人生成池

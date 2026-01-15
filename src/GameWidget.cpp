@@ -26,6 +26,7 @@ GameWidget::GameWidget(QWidget *parent)
     playerSpeed = 8;
     m_player = new Player(this->width()/2 - 20, this->height() - 50);
     m_player->setParent(this);
+    connect(m_player, &Player::dead, this, &GameWidget::gameOverSlot);
     QTimer::singleShot(0, this, &GameWidget::initGame);
     
 }
