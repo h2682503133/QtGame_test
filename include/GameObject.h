@@ -47,7 +47,8 @@ public:
     void setMaxHp(int maxHp); // 设置最大血量
     void setDamage(int damage); // 设置攻击伤害
     void setDefense(float defense); // 设置防御系数(乘算)
-    void takeDamage(int damage);    // 受击扣血核心函数(自动计算防御减伤，无敌判定)
+    virtual void takeDamage(int damage);    // 受击扣血核心函数(自动计算防御减伤，无敌判定) 已自带存活状态改变
+    virtual void onDead();   // 死亡处理,默认为延时删除
     void setAlive(bool alive);    // 设置当前存活状态
 
     //阵营旗帜 全套接口
