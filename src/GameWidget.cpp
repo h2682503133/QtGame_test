@@ -20,21 +20,25 @@ GameWidget::GameWidget(QWidget *parent)
     m_enemyTypePool.clear();
     m_weightList.clear();
     m_totalWeight = 0;
-    
     //初始化敌人生成池
     initEnemyTypePool();
-
     //初始化自机
     playerSpeed = 8;
     m_player = new Player(this->width()/2 - 20, this->height() - 50);
     m_player->setParent(this);
+    QTimer::singleShot(0, this, &GameWidget::initGame);
+    
+}
+void GameWidget::initGame()
+{ 
+    QEventLoop initLoop; // 创建局部事件循环，作用域仅限本函数
+    QTimer::singleShot(0, &initLoop, &QEventLoop::quit); // 零延迟退出循环
+    initLoop.exec();
+
     // 加载本地自机图片 + 指定尺寸
     m_player->loadImgFromFile("player", 50, 50);
-}
-void GameWidget::showEvent(QShowEvent *event)
-{
-    QWidget::showEvent(event); // 执行Qt原生的显示逻辑，必须加
 
+    gameOver = false;
     //初始化计时器
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &GameWidget::gameUpdate);
@@ -42,7 +46,11 @@ void GameWidget::showEvent(QShowEvent *event)
     
     enemyTimer = new QTimer(this);
     connect(enemyTimer, &QTimer::timeout, this, &GameWidget::spawnEnemy);
-    QTimer::singleShot(100, this, [=](){ enemyTimer->start(1000); });
+    QTimer::singleShot(100, this, [=](){ enemyTimer->start(1000); });      
+}
+void GameWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event); // 执行Qt原生的显示逻辑
 }
 GameWidget::~GameWidget()
 {

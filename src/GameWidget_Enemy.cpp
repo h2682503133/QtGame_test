@@ -48,16 +48,14 @@ void GameWidget::spawnEnemy()
     else if(enemy != nullptr)
     {
         
-        enemy->disconnect(enemy,&EnemyBase::enemyDead, nullptr, nullptr);
+        enemy->disconnect();
         enemy->setParent(this);
     }
     //绑定信号槽
     
     if(enemy)
     {
-        connect(enemy, &EnemyBase::enemyDead, this, [this](int addScore){
-            this->score += addScore;
-        });
+        connect(enemy, &EnemyBase::enemyDead, this, &GameWidget::addEnemyScore);
     }
     
     //敌机重置状态 加入活跃队列
@@ -70,7 +68,6 @@ void GameWidget::spawnEnemy()
         enemy->setCollideCenter(randomX + enemy->getImgRect().width()/2, enemy->getImgRect().height()/2);
     }
 }
-
 //从敌机池获取闲置敌机
 EnemyBase* GameWidget::getEnemyFromPool()
 {
@@ -107,7 +104,7 @@ void GameWidget::updateAllEnemies()
                 recycleEnemy(enemy);
             }
         }
-        else
+        else if(!enemy->isAlive()&&enemy->isReady())
         {
             // 敌机死亡则回收
             recycleEnemy(enemy);
