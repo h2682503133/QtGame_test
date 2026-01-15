@@ -2,7 +2,7 @@
 #include "Player.h"
 #include <QRandomGenerator>
 
-EnemyBase::EnemyBase(int winWidth,QObject *parent)
+EnemyBase::EnemyBase(int winWidth)
     : GameObject(0, 0, 40, 40, 18),  
       m_scoreReward(10),             
       m_enemySpeed(3),               
@@ -11,19 +11,13 @@ EnemyBase::EnemyBase(int winWidth,QObject *parent)
       m_imgHeight(40),               
       m_collideRadius(18)             
 {
-    this->setParent(parent);
     this->setCamp(3);
 
    
     this->setMaxHp(1);        // 敌机血量默认1，一碰就死
-    this->setHp(1);           // 初始满血
+    this->setHp(0);           // 初始满血
     this->setDamage(100);     // 碰撞玩家秒杀（玩家阵营2，触碰即扣血）
     this->setDefense(0.0f);   // 敌机无防御，全额吃伤害
-
-    //敌机生成规则 - 窗口顶部随机X坐标生成，保证敌机在屏幕内
-    int randomX = QRandomGenerator::global()->bounded(0, m_winWidth - m_imgWidth);
-    this->setImgPos(randomX, 0);  // 设置贴图坐标：顶部随机X，Y=0
-    this->setCollideCenter(randomX + m_imgWidth/2, m_imgHeight/2); // 碰撞圆心与贴图居中对齐
 }
 
 

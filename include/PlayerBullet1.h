@@ -7,10 +7,12 @@
 class PlayerBullet1 : public BulletBase
 {
     Q_OBJECT
-public:
-    explicit PlayerBullet1(QObject *parent = nullptr);
-    explicit PlayerBullet1(int x, int y, QObject *parent = nullptr);
-    void initPlayerBullet(double shootAngle);
+    public:
+        explicit PlayerBullet1(QObject *parent = nullptr);
+        explicit PlayerBullet1(int x, int y, QObject *parent = nullptr);
+        void initPlayerBullet(double shootAngle);
+    private:
+        static QPixmap s_img;
 };
 
 #endif // PLAYERBULLET1_H

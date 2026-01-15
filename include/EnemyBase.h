@@ -24,10 +24,9 @@ class EnemyBase : public GameObject
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(EnemyBase) // 禁止拷贝移动，防止内存错误
 public:
-    explicit EnemyBase(int winWidth, QObject *parent = nullptr);
-    explicit EnemyBase(QObject *parent = nullptr);
+    explicit EnemyBase(int winWidth);
     virtual ~EnemyBase() override = default;
-    
+
     EnemyType getEnemyType()const;
     void move() override;
     

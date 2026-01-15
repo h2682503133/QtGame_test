@@ -77,55 +77,58 @@ bool GameObject::isCircleCollide(const GameObject &other) const
     return distanceSqrt <= (m_collideRadius + other.m_collideRadius) * (m_collideRadius + other.m_collideRadius);
 }
 //贴图相关
-void GameObject::setPixmap(const QPixmap &pix)
+void GameObject::setPixmap(QPixmap &pix)
 {
-    m_img = pix;
+    m_img = &pix;
 }
 
 QPixmap GameObject::getPixmap() const
 {
-    return m_img;
+    return *m_img;
 }
 
 QRect GameObject::getImgRect() const
 {
     return m_imgRect;
 }
-void GameObject::loadImgFromFile(const QString&  imgName)
+QPixmap GameObject::loadImgFromFile(const QString&  imgName)
 {
-    m_img = QPixmap();
+    QPixmap temp = QPixmap();
     m_imgRect.setSize(QSize(0, 0));
     QString imgFullPath = "./img/" + imgName + ".png";
 
     try {
         // 加载图片
-        m_img = QPixmap(imgFullPath);
-
+        temp = QPixmap(imgFullPath);
         //判断图片是否加载成功
-        if(m_img.isNull())
+        if(temp.isNull())
         {
             QMessageBox::critical(nullptr,  // 父窗口，nullptr=置顶全局弹窗
                                   "图片加载致命错误",  // 弹窗标题（醒目红色错误标题）
                                   QString("找不到图片文件！\n路径：%1\n请检查图片路径和文件是否存在！").arg(imgFullPath),
                                   QMessageBox::Ok);
-            return;
+            return temp;
         }
+        return temp;
     } catch (...) {
         //捕获所有未知异常
-        m_img = QPixmap();
+        temp = QPixmap();
         m_imgRect.setSize(QSize(0, 0));
         QMessageBox::critical(nullptr,  // 父窗口，nullptr=置顶全局弹窗
                                   "图片加载致命错误",  // 弹窗标题（醒目红色错误标题）
                                   QString("找不到图片文件！\n路径：%1\n请检查图片路径和文件是否存在！").arg(imgFullPath),
                                   QMessageBox::Ok);
         }
+        return QPixmap();
 }
 
-void GameObject::loadImgFromFile(const QString&  imgName, int showWidth, int showHeight)
+QPixmap GameObject::loadImgFromFile(const QString&  imgName, int showWidth, int showHeight)
 {
+    QPixmap temp;
     loadImgFromFile(imgName);
-    m_img = m_img.scaled(showWidth, showHeight,Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    temp.scaled(showWidth, showHeight,Qt::KeepAspectRatio, Qt::SmoothTransformation);
     m_imgRect.setSize(QSize(showWidth, showHeight));
+    return temp;
 }
 void GameObject::setImgSize(int w, int h)
 {

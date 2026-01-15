@@ -7,6 +7,9 @@
 #include <vector>
 #include <algorithm>
 
+#include <QThreadPool>
+#include <QRunnable>
+
 #include "GameObject.h"
 #include "EnemyBase.h"
 #include "EnemyNormal.h"
@@ -30,6 +33,7 @@ private slots:
     void gameUpdate();
     void spawnEnemy();
     void addEnemyScore(int addScore){score+=addScore;}
+    void onEnemyCreated(EnemyBase* enemy);
     
 
 private:
@@ -82,6 +86,9 @@ private:
     void drawAllBullets(QPainter& painter);     // 绘制所有子弹
     void updateAllBullets();       // 更新所有子弹移动+出界销毁
     void checkBulletCollisions();   // 子弹与物体碰撞检测
-};
+signals:
+    // 子线程构造完成后，给主线程发信号
+    void enemyCreateFinished();
 
+};
 #endif // GAMEWIDGET_H

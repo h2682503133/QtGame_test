@@ -35,9 +35,8 @@ void GameWidget::initGame()
     QTimer::singleShot(0, &initLoop, &QEventLoop::quit); // 零延迟退出循环
     initLoop.exec();
 
-    // 加载本地自机图片 + 指定尺寸
-    m_player->loadImgFromFile("player", 50, 50);
-
+    // 加载本地自机图片
+    m_player->loadPlayerResource();
     gameOver = false;
     //初始化计时器
     gameTimer = new QTimer(this);

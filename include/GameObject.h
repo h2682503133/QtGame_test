@@ -27,11 +27,11 @@ public:
     bool isCircleCollide(const GameObject& other) const; // 圆形与圆形碰撞检测核心函数
 
     // 本地图片文件加载接口
-    void loadImgFromFile(const QString&  imgName);
-    void loadImgFromFile(const QString&  imgName, int showWidth, int showHeight);
+    QPixmap loadImgFromFile(const QString&  imgName);
+    QPixmap loadImgFromFile(const QString&  imgName, int showWidth, int showHeight);
 
     // 贴图属性(显示用) - 尺寸/坐标 独立于碰撞盒，但是联动移动
-    void setPixmap(const QPixmap& pix);   // 设置绑定的图像
+    void setPixmap(QPixmap& pix);   // 设置绑定的图像
     QPixmap getPixmap() const;            // 获取绑定的图像
     QRect getImgRect() const;             // 获取图像的显示矩形(贴图大小/位置)
     void setImgSize(int w, int h);        // 设置图像尺寸(贴图大小)
@@ -65,6 +65,7 @@ public:
     // 发射子弹 空实现，有子弹的敌机子类重写即可，无则不动
 
     virtual void shootBullet(){}
+    
 protected:
     int m_speed;          // 移动速度
     bool m_isAlive = true; // 存活状态
@@ -73,7 +74,7 @@ protected:
     int m_collideRadius;    // 圆形碰撞盒 半径
 
     //贴图
-    QPixmap m_img;          // 绑定的显示图像
+    QPixmap *m_img=nullptr; // 绑定的显示图像 子代必须实现由其静态类绑定到该指针的方法
     QRect m_imgRect;        // 图像显示矩形(贴图坐标+尺寸)
 
     //战斗核心属性 (血量/伤害/防御乘算/无敌)

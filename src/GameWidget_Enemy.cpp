@@ -1,6 +1,6 @@
 #include "GameWidget.h"
 #include "EnemyBase.h"
-
+#include "EnemyCreateTask.h"
 #include <QRandomGenerator>
 #include <QMessageBox>
 #include <QRandomGenerator>
@@ -35,13 +35,18 @@ void GameWidget::spawnEnemy()
     }
     
     //从敌机池取机 / 自动创建敌机
-    EnemyBase* enemy = getEnemyFromPool();
+    EnemyBase* enemy = getEnemyFromPoolByType(curEnemyType);
     if (enemy == nullptr && curCreator != nullptr)
     {
-        enemy = curCreator(this->width());
-        if(enemy) 
-        {   
-            QMetaObject::invokeMethod(enemy, &EnemyBase::loadEnemyResource, Qt::QueuedConnection);
+        if(curCreator != nullptr)
+        {
+            EnemyCreateTask *task = new EnemyCreateTask(curCreator, this->width(), this );
+            QThreadPool::globalInstance()->start(task); // 线程池自动管理线程，无需手动释放
+        }
+        if(!m_enemyPool.empty())
+        {
+            enemy = getEnemyFromPool();
+            enemy->disconnect();
             enemy->setParent(this);
         }
     }
@@ -67,6 +72,28 @@ void GameWidget::spawnEnemy()
         enemy->setImgPos(randomX, 0);
         enemy->setCollideCenter(randomX + enemy->getImgRect().width()/2, enemy->getImgRect().height()/2);
     }
+}
+void GameWidget::onEnemyCreated(EnemyBase* enemy)
+{
+    if(enemy == nullptr || gameOver) return;
+    enemy->setParent(this);
+    enemy->loadEnemyResource();
+    m_enemyPool.push_back(enemy);
+}
+EnemyBase* GameWidget::getEnemyFromPoolByType(EnemyType targetType)
+{
+    if(!m_enemyPool.empty())
+    // 遍历池，找对应类型的敌机
+    for(int i = 0; i < m_enemyPool.size(); i)
+    {
+        EnemyBase* enemy = m_enemyPool.at(i);
+        if(enemy && enemy->getEnemyType() == targetType)
+        {
+            m_enemyPool.erase(m_enemyPool.begin() + i); // 找到后从池中移除
+            return enemy;
+        }
+    }
+    return nullptr; // 无对应类型，返回空
 }
 //从敌机池获取闲置敌机
 EnemyBase* GameWidget::getEnemyFromPool()
@@ -151,6 +178,8 @@ void GameWidget::initEnemyTypePool()
     {
         // 创建临时敌机对象，只为读取权重
         EnemyBase* tempEnemy = item.creator(this->width());
+        // 顺带初始化图像
+        tempEnemy->loadEnemyResource();
         if (tempEnemy)
         {
             int enemyWeight = tempEnemy->getWeight(); // 自动读取子类自身的权重
