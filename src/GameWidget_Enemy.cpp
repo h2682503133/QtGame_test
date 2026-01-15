@@ -124,6 +124,17 @@ void GameWidget::drawAllEnemies(QPainter& painter)
         }
     }
 }
+void GameWidget::EnemiesShoot()
+{
+    QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
+    for (EnemyBase* enemy : enemyList)
+    {
+        if (enemy->isAlive() && enemy->isReady())
+        {
+            enemy->shootBullet();
+        }
+    }
+}
 
 //玩家与敌机的碰撞检测
 void GameWidget::checkPlayerEnemyCollision()
@@ -146,6 +157,11 @@ void GameWidget::initEnemyTypePool()
     item1.type = EnemyType::NormalEnemy;
     item1.creator = EnemyNormal::Create;
     m_enemyTypePool.push_back(item1);
+
+    EnemyTypeItem item2;
+    item2.type = EnemyType::StaticEnemy;
+    item2.creator = EnemyStatic::Create;
+    m_enemyTypePool.push_back(item2);
     //遍历类型池累加总权重
     for (const auto& item : m_enemyTypePool)
     {

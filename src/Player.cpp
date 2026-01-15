@@ -33,11 +33,45 @@ void Player::shootBullet()
     {
         return;
     }
-    // 出生位置：玩家贴图的正上方中心，Y轴-10
-    PlayerBullet1* bullet = new PlayerBullet1(this->getImgRect().center().x(), 
-                                               this->getImgRect().top() - 10,
-                                               this->parent());
-    bullet->initPlayerBullet(-90.0);
+    switch(counter)
+    {
+        case 0: 
+        {
+            // 出生位置：玩家贴图的正上方中心，Y轴-10
+            PlayerBullet1* bullet = new PlayerBullet1(this->getImgRect().center().x(), 
+                                                    this->getImgRect().top() - 10,
+                                                    this->parent());
+            bullet->initPlayerBullet(-90.0);
+            
+        }
+        case 1: 
+        {
+        // 出生位置：玩家贴图的正上方中心，Y轴-15 x轴左右10
+            PlayerBullet1* bullet = new PlayerBullet1(this->getImgRect().center().x()-10, 
+                                                    this->getImgRect().top() - 15,
+                                                    this->parent());
+            bullet->initPlayerBullet(-90.0);
+            bullet = new PlayerBullet1(this->getImgRect().center().x()+10, 
+                                                    this->getImgRect().top() - 15,
+                                                    this->parent());
+            bullet->initPlayerBullet(-90.0);
+            m_lastShootTime = currentTime;
+        }
+        case 2:
+        {
+            // 出生位置：玩家贴图的正上方中心，Y轴-20
+            PlayerBullet2* bullet = new PlayerBullet2(this->getImgRect().center().x(), 
+                                                    this->getImgRect().top() - 20,
+                                                    this->parent());
+            bullet->initPlayerBullet(-90.0);
+            
+        }
+        //轮空一轮 置零计时器
+        default:
+            counter = 0;
+            break;
+    }
+    counter+=1;
     m_lastShootTime = currentTime;
 }
 // 向上移动 - 无边界上限(飞机可以飞出屏幕上方)

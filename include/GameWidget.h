@@ -9,7 +9,7 @@
 
 #include "GameObject.h"
 #include "EnemyBase.h"
-#include "EnemyNormal.h"
+#include "Enemy.h"
 #include <Player.h>
 #include "ui_Form.h"
 class GameWidget : public QWidget
@@ -55,7 +55,7 @@ private:
     void onBtnStartClicked();
     void onBtnRestartClicked();
     //敌机相关
-    
+    void EnemiesShoot();                      // 敌机发射子弹
     void updateAllEnemies();                  // 更新所有敌机的移动+出界判定
     void drawAllEnemies(QPainter& painter);   // 绘制所有敌机
     void checkPlayerEnemyCollision();         // 检测玩家与敌机碰撞

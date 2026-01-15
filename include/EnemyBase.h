@@ -6,7 +6,8 @@
 //敌机类型枚举 标记派生类型同时可用于随机池抽取
 enum class EnemyType
 {
-    NormalEnemy  //基础敌机
+    NormalEnemy,  //基础敌机
+    StaticEnemy  //静止敌机
 };
 class EnemyBase;
 typedef EnemyBase* (*EnemyCreatorFunc)(int winWidth);

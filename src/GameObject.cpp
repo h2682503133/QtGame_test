@@ -220,6 +220,10 @@ int GameObject::getSpeed() const
 {
     return m_speed;
 }
+void GameObject::setSpeed(int speed)
+{
+    m_speed=speed;
+}
 
 void GameObject::moveOffset(int dx, int dy)
 {
