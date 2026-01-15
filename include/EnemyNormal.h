@@ -6,17 +6,19 @@
 // 基础敌机子类 使用父类EnemyBase所有默认值
 class EnemyNormal : public EnemyBase
 {
+    Q_OBJECT
 public:
     
-    explicit EnemyNormal(int winWidth, QObject *parent);
+    explicit EnemyNormal(int winWidth);
     // 加载贴图，尺寸/碰撞半径等完全用父类默认值(40*40 贴图 + 18 碰撞半径)
     void loadEnemyResource() override;
     static EnemyBase* Create(int winWidth)
     {
-        EnemyNormal* enemy = new EnemyNormal(winWidth, nullptr);
+        EnemyNormal* enemy = new EnemyNormal(winWidth);
         return enemy;
     }
 protected:
+    static QPixmap s_img;
     EnemyType type = EnemyType::NormalEnemy;
 };
 

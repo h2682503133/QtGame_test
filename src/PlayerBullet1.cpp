@@ -1,6 +1,6 @@
 
 #include "PlayerBullet1.h"
-
+QPixmap PlayerBullet1::s_img;
 // 无参构造
 PlayerBullet1::PlayerBullet1(QObject *parent) : BulletBase(parent)
 {
@@ -12,7 +12,8 @@ PlayerBullet1::PlayerBullet1(int x, int y, QObject *parent)
     this->m_imgWidth = 6;
     this->m_imgHeight = 14;
     this->setParent(parent);
-    this->loadImgFromFile("playerbullet_1", this->m_imgWidth, this->m_imgHeight);
+    s_img=this->loadImgFromFile("playerbullet_1", this->m_imgWidth, this->m_imgHeight);
+    m_img=&s_img;
     //玩家子弹的阵营为2
     this->setCamp(2);
     //子弹血量为1，击中即销毁

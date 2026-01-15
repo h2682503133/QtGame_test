@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "GameWidget.h"
+QPixmap Player::s_img;
 // 自机构造函数实现
 Player::Player(int x, int y)
     : GameObject(x, y, 40, 50, 18, 8), // 父类传参：坐标x/y、贴图宽40高50、碰撞半径18、移动速度8
@@ -16,7 +17,11 @@ Player::Player(int x, int y)
     m_shootInterval = 300; // 300毫秒一发
     m_lastShootTime = QTime::currentTime();
 }
-
+void Player::loadPlayerResource()
+{
+    s_img=this->loadImgFromFile("player", 50, 50);
+    this->m_img=&s_img;
+}
 // 重写父类纯虚move函数(空实现)，自机移动由按键调用专属接口控制
 void Player::move()
 {
