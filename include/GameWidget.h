@@ -37,6 +37,7 @@ private:
     bool downPressed;
     bool leftPressed;
     bool rightPressed;
+    bool zPressed;
     // 游戏核心状态
     Player* m_player; //自机对象
     int score;
@@ -50,7 +51,7 @@ private:
     //按钮点击的槽函数声明
     void onBtnStartClicked();
     void onBtnRestartClicked();
-
+    //敌机相关
     std::vector<EnemyBase*> m_enemyPool;      // 敌机对象池-存放闲置敌机，复用无内存碎片
 
     EnemyBase* getEnemyFromPool();            // 从池中取出敌机
@@ -65,6 +66,10 @@ private:
     std::vector<EnemyTypeItem> m_enemyTypePool;  // 敌机类型池：类型+创建函数
     std::vector<int> m_weightList;               // 自动读取的权重列表，和类型池一一对应
     int m_totalWeight = 0;                       // 总权重
+    //子弹相关
+    void drawAllBullets(QPainter& painter);     // 绘制所有子弹
+    void updateAllBullets();       // 更新所有子弹移动+出界销毁
+    void checkBulletCollisions();   // 子弹与物体碰撞检测
 };
 
 #endif // GAMEWIDGET_H

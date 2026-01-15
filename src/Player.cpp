@@ -1,5 +1,6 @@
 #include "Player.h"
-
+#include "PlayerBullet.h"
+#include "GameWidget.h"
 // 自机构造函数实现
 Player::Player(int x, int y)
     : GameObject(x, y, 40, 50, 18, 8), // 父类传参：坐标x/y、贴图宽40高50、碰撞半径18、移动速度8
@@ -11,6 +12,9 @@ Player::Player(int x, int y)
     setMaxHp(3);                // 最大血量3条命
     setDamage(1);               // 子弹伤害1
     setDefense(0.0f);           // 默认无防御，可通过setInvincible(true)开启无敌
+
+    m_shootInterval = 300; // 300毫秒一发
+    m_lastShootTime = QTime::currentTime();
 }
 
 // 重写父类纯虚move函数(空实现)，自机移动由按键调用专属接口控制
@@ -18,6 +22,24 @@ void Player::move()
 {
 }
 
+void Player::shootBullet()
+{
+    if(!this->isAlive()) return; // 玩家死亡不发射子弹
+    QTime currentTime = QTime::currentTime();
+    // 计算时间差
+    int elapsed = m_lastShootTime.msecsTo(currentTime);
+    // 时间差小于间隔直接返回
+    if (elapsed < m_shootInterval)
+    {
+        return;
+    }
+    // 出生位置：玩家贴图的正上方中心，Y轴-10
+    PlayerBullet1* bullet = new PlayerBullet1(this->getImgRect().center().x(), 
+                                               this->getImgRect().top() - 10,
+                                               this->parent());
+    bullet->initPlayerBullet(-90.0);
+    m_lastShootTime = currentTime;
+}
 // 向上移动 - 无边界上限(飞机可以飞出屏幕上方)
 void Player::moveUp()
 {

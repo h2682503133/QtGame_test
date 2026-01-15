@@ -20,7 +20,8 @@ void GameWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Right:
         rightPressed = true;
         break;
-    case Qt::Key_Space:
+    case Qt::Key_Z:
+        zPressed = true;
         break;
     default:
         QWidget::keyPressEvent(event);
@@ -42,6 +43,8 @@ void GameWidget::keyReleaseEvent(QKeyEvent *event)
     case Qt::Key_Right:
         rightPressed = false;
         break;
+    case Qt::Key_Z:
+        zPressed = false;
     default:
          QWidget::keyReleaseEvent(event);
     }

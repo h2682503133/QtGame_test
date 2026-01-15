@@ -16,8 +16,10 @@ public:
     // 无参构造+有参全构造
     GameObject();
     GameObject(int x, int y, int imgWidth, int imgHeight, int collideRadius, int speed = 0);
-
-    //圆形碰撞体积
+    // 初始化就绪标记
+    bool isReady() const;
+    void setReady(bool ready);      // 设置初始化就绪标记 该标记用于构造函数一定是最低级子类构造时调用
+    // 圆形碰撞体积
     QPoint getCollideCenter() const;  // 获取圆形碰撞盒圆心
     int getCollideRadius() const;     // 获取圆形碰撞盒半径
     void setCollideCenter(int x, int y); // 设置圆形碰撞盒圆心
@@ -59,7 +61,9 @@ public:
 
     //移动行为
     virtual void move() = 0;
+    // 发射子弹 空实现，有子弹的敌机子类重写即可，无则不动
 
+    virtual void shootBullet(){}
 protected:
     int m_speed;          // 移动速度
     bool m_isAlive = true; // 存活状态
@@ -71,7 +75,7 @@ protected:
     QPixmap m_img;          // 绑定的显示图像
     QRect m_imgRect;        // 图像显示矩形(贴图坐标+尺寸)
 
-    //战斗核心属性 (血量/伤害/防御乘算/无敌) ---
+    //战斗核心属性 (血量/伤害/防御乘算/无敌)
     int m_hp;               // 当前血量
     int m_maxHp;            // 最大血量
     int m_damage;           // 攻击伤害
@@ -79,9 +83,10 @@ protected:
                             // 无敌物体设置 m_defense = 1.0 即可，伤害*0 → 无伤
                             // 无防御设置 m_defense = 0.0，伤害全额生效
 
-    //阵营旗帜---
+    //阵营旗帜
     int m_camp;            // 阵营标记，区分敌我 0不与任何单位为敌，1为其他所有单位为敌，其他相同则为友
-    
+    //初始化就绪标志
+    bool m_isReady = false; // 对象是否初始化就绪，避免出现未初始化完全就被调用
     //贴图与碰撞盒 共同移动
     // 统一移动偏移：调用该函数，图像和碰撞盒会同步偏移，保证永远一起移动，无需手动同步
     void moveOffset(int dx, int dy);

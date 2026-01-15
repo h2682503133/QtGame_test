@@ -29,6 +29,16 @@ GameObject::GameObject(int x, int y, int imgWidth, int imgHeight, int collideRad
     , m_camp(0)
 {
 }
+
+bool GameObject::isReady() const
+{
+    return m_isReady;
+}
+
+void GameObject::setReady(bool ready)
+{
+    m_isReady = ready;
+}
 bool GameObject::isAlive() const
 {
     return m_isAlive;

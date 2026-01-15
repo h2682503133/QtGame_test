@@ -9,6 +9,7 @@ GameWidget::GameWidget(QWidget *parent)
     , downPressed(false)
     , leftPressed(false)
     , rightPressed(false)
+    , zPressed(false)
     , score(0)
     , gameOver(false)
 {
@@ -26,6 +27,7 @@ GameWidget::GameWidget(QWidget *parent)
     //初始化自机
     playerSpeed = 8;
     m_player = new Player(this->width()/2 - 20, this->height() - 50);
+    m_player->setParent(this);
     // 加载本地自机图片 + 指定尺寸
     m_player->loadImgFromFile("player", 50, 50);
 }
@@ -36,7 +38,7 @@ void GameWidget::showEvent(QShowEvent *event)
     //初始化计时器
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &GameWidget::gameUpdate);
-    gameTimer->start(16);
+    gameTimer->start(1000/60);//刷新帧率
     
     enemyTimer = new QTimer(this);
     connect(enemyTimer, &QTimer::timeout, this, &GameWidget::spawnEnemy);
@@ -71,13 +73,15 @@ void GameWidget::paintEvent(QPaintEvent *event)
     }
     //绘制敌人
     drawAllEnemies(painter);
+    //绘制子弹
+    drawAllBullets(painter); 
 }
 
 void GameWidget::gameUpdate()
 {
     if (gameOver || m_player == nullptr || !m_player->isAlive()) return;
-
-    // 自机移动逻辑，调用Player类的移动函数
+    // 自机控制逻辑
+    // 自机移动
     if(upPressed)
         m_player->moveUp();
     if(downPressed)
@@ -86,12 +90,18 @@ void GameWidget::gameUpdate()
         m_player->moveLeft();
     if(rightPressed)
         m_player->moveRight(this->width());
-
-    // 更新所有敌人
+    // 自机发射子弹
+    if(zPressed)
+        m_player->shootBullet();
+    // 敌人相关
     updateAllEnemies();
-    // 检查玩家与敌人之间的碰撞
     checkPlayerEnemyCollision();
-    //更新UI里的得分标签
+
+    // 子弹相关
+    updateAllBullets();
+    checkBulletCollisions();
+
+    // 更新UI里的得分标签
     ui->label->setText(QString("得分：%1").arg(score));
 
     

@@ -96,7 +96,7 @@ void GameWidget::updateAllEnemies()
     QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
     for (EnemyBase* enemy : enemyList)
     {
-        if (enemy->isAlive())
+        if (enemy->isAlive()&& enemy->isReady())
         {
             enemy->move();  // 调用敌机自身的移动逻辑：垂直匀速下落
             enemy->checkOutOfWindow(this->height());  // 检测是否飞出窗口底部
@@ -121,7 +121,7 @@ void GameWidget::drawAllEnemies(QPainter& painter)
     QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
     for (EnemyBase* enemy : enemyList)
     {
-        if (enemy->isAlive())
+        if (enemy->isAlive()&& enemy->isReady())
         {
             painter.drawPixmap(enemy->getImgRect(), enemy->getPixmap());
         }

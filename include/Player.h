@@ -1,6 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-
+#include <QTime>
 #include "GameObject.h"
 
 // 自机类 - 玩家控制的飞机，公有继承GameObject通用基类
@@ -12,21 +12,25 @@ public:
     Player(int x = 0, int y = 0);
     ~Player() override = default;
 
-    // 重写父类纯虚函数 - 自机的移动(空实现，自机移动由按键控制moveUp/moveDown等接口)
+    //空置移动使用下方
     void move() override;
 
-    // ========== 自机核心专属接口 - 上下左右移动 + 边界碰撞检测 ==========
+    //自机移动+碰撞检测
     void moveUp();    // 向上移动
     void moveDown(int windowHeight); // 向下移动 + 屏幕下边界限制
     void moveLeft();  // 向左移动 + 屏幕左边界限制
     void moveRight(int windowWidth); // 向右移动 + 屏幕右边界限制
-
-    // ========== 自机专属功能接口 ==========
-    void setInvincible(bool invincible); // 设置无敌状态(true=无敌 false=解除)
-    bool isInvincible() const;           // 获取无敌状态
+    //发射子弹
+    void shootBullet();
+    //无敌状态（用于可能拓展无敌道具或调试模式）
+    void setInvincible(bool invincible);
+    bool isInvincible() const;           
 
 private:
     bool m_isInvincible; // 自机无敌标记(额外特性，区别于通用防御系数)
+
+    int m_shootInterval; // 发射间隔单位毫秒
+    QTime m_lastShootTime;
 };
 
 #endif // PLAYER_H
