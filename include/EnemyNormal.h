@@ -7,6 +7,7 @@
 class EnemyNormal : public EnemyBase
 {
 public:
+    
     explicit EnemyNormal(int winWidth, QObject *parent);
     // 加载贴图，尺寸/碰撞半径等完全用父类默认值(40*40 贴图 + 18 碰撞半径)
     void loadEnemyResource() override;
@@ -15,6 +16,8 @@ public:
         EnemyNormal* enemy = new EnemyNormal(winWidth, nullptr);
         return enemy;
     }
+protected:
+    EnemyType type = EnemyType::NormalEnemy;
 };
 
 #endif // ENEMYNORMAL_H

@@ -190,11 +190,15 @@ void GameObject::takeDamage(int damage)
     setHp(m_hp - realDamage);
     if (m_hp <= 0)
     {
-        m_isAlive = false;
-        this->deleteLater();
+        setAlive(false);
+        onDead();
     }
 }
-
+void GameObject::onDead()
+{
+    setAlive(false);//二次修改使其兼容非受伤死亡方式
+    this->deleteLater();
+}
 int GameObject::getCamp() const
 {
     return m_camp;
@@ -215,6 +219,10 @@ bool GameObject::isSameCamp(GameObject *other)
 int GameObject::getSpeed() const
 {
     return m_speed;
+}
+void GameObject::setSpeed(int speed)
+{
+    m_speed=speed;
 }
 
 void GameObject::moveOffset(int dx, int dy)

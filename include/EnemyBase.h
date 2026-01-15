@@ -6,7 +6,8 @@
 //敌机类型枚举 标记派生类型同时可用于随机池抽取
 enum class EnemyType
 {
-    NormalEnemy  //基础敌机
+    NormalEnemy,  //基础敌机
+    StaticEnemy  //静止敌机
 };
 class EnemyBase;
 typedef EnemyBase* (*EnemyCreatorFunc)(int winWidth);
@@ -27,11 +28,12 @@ public:
     explicit EnemyBase(int winWidth, QObject *parent = nullptr);
     explicit EnemyBase(QObject *parent = nullptr);
     virtual ~EnemyBase() override = default;
-
+    
+    EnemyType getEnemyType()const;
     void move() override;
     
     virtual void loadEnemyResource()=0;  // 加载敌机贴图+碰撞体积(子类必须重写，无默认实现)
-    virtual void onEnemyDead();        // 敌机死亡回调 有默认实现：空逻辑，仅标记死亡
+    virtual void onDead();        // 敌机死亡回调
     bool checkAllEnemyCollideWithPlayer(Player* player, bool& gameOver); //检测是否与玩家碰撞
     //出界相关
     void checkOutOfWindow(int winHeight); // 出界检测：飞出屏幕底部 → 标记死亡
@@ -55,6 +57,7 @@ protected:
     int         m_imgHeight;       // 敌机贴图高度 有默认值
     int         m_collideRadius;   // 敌机碰撞半径 有默认值
     int         m_weight = 0;      // 敌机生成概率权重值 基础默认为0
+    EnemyType   m_enemyType;
 signals:  //敌机死亡信号，携带加分值
     void enemyDead(int scoreReward);
 };
