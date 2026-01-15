@@ -26,19 +26,17 @@ void GameWidget::updateAllBullets()
         if(bullet->isAlive()&& bullet->isReady())
         {
             bullet->move();
-            // 出界标记死亡直接delete销毁
+            // 出界标记死亡直接销毁
             if(bullet->isOutOfWindow(this->width(), this->height()))
             {
-                bullet->setAlive(false);
-                delete bullet;
-                bullet = nullptr;
+                bullet->onDead();
             }
-        }
-        else
-        {
-            // 非存活子弹直接delete销毁
-            delete bullet;
-            bullet = nullptr;
+            else
+            {
+                // 非存活子弹直接销毁 兜底条件 预防设置死亡但未删除
+                if(!bullet->isAlive())
+                bullet->onDead();
+            }
         }
     }
 }
@@ -58,17 +56,13 @@ void GameWidget::checkBulletCollisions()
         //击中敌机(阵营不是3)
         if(bullet->getCamp() != 3)
         {
-            for(EnemyBase* enemy : allEnemys)
+            for (int j = allEnemys.size()-1; j >= 0; j--) // 倒序遍历，防止删除后迭代器失效
             {
+                EnemyBase* enemy = allEnemys[j];
                 if(enemy->isAlive() && bullet->isReady()&& !bullet->isSameCamp(enemy) && bullet->isCircleCollide(*enemy))
                 {
                     enemy->takeDamage(bullet->getDamage()); // 敌机扣血
-                    bullet->setAlive(false);                // 子弹击中后死亡
-                    // 敌机死亡发射enemyDead信号加分
-                    if(!enemy->isAlive())
-                    {
-                        emit enemy->enemyDead(100);
-                    }
+                    bullet->onDead();            // 子弹击中后死亡
                     break;
                 }
             }

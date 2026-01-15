@@ -30,7 +30,8 @@ private:
     bool m_isInvincible; // 自机无敌标记(额外特性，区别于通用防御系数)
 
     int m_shootInterval; // 发射间隔单位毫秒
-    QTime m_lastShootTime;
+    QTime m_lastShootTime; 
+    int counter=0;  //计数器 用于子弹的轮换发射
 };
 
 #endif // PLAYER_H

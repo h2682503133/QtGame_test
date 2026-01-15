@@ -54,7 +54,7 @@ void EnemyBase::checkOutOfWindow(int winHeight)
     if (this->getImgRect().top() > winHeight)
     {
         m_isOutOfWindow = true;
-        this->setAlive(false); // 出界即死亡，等待主界面清理
+        this->setAlive(false); // 出界即死亡，但该方式不调用死亡回调
     }
     else
     {
@@ -62,9 +62,9 @@ void EnemyBase::checkOutOfWindow(int winHeight)
     }
 }
 
-void EnemyBase::onEnemyDead()
+void EnemyBase::onDead()
 {
-    this->setAlive(false);
+    setAlive(false);
     emit enemyDead(this->getScoreReward());
 }
 
@@ -100,3 +100,5 @@ bool EnemyBase::isEnemyOutOfWindow() const
 
 int EnemyBase::getWeight() const { return m_weight; }
 void EnemyBase::setWeight(int weight) { m_weight = weight; }
+
+EnemyType EnemyBase::getEnemyType() const { return m_enemyType; }
