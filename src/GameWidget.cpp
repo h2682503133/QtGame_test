@@ -102,6 +102,7 @@ void GameWidget::gameUpdate()
     if(zPressed)
         m_player->shootBullet();
     // 敌人相关
+    EnemiesShoot();
     updateAllEnemies();
     checkPlayerEnemyCollision();
 

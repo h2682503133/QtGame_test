@@ -21,7 +21,7 @@ public:
 protected:
     int maxHight;
     EnemyType type = EnemyType::StaticEnemy;
-    int m_shootInterval; // 发射间隔单位毫秒
+    int m_shootInterval=500; // 发射间隔单位毫秒
     QTime m_lastShootTime; 
 };
 

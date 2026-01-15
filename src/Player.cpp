@@ -55,7 +55,6 @@ void Player::shootBullet()
                                                     this->getImgRect().top() - 15,
                                                     this->parent());
             bullet->initPlayerBullet(-90.0);
-            m_lastShootTime = currentTime;
         }
         case 2:
         {
@@ -68,7 +67,7 @@ void Player::shootBullet()
         }
         //轮空一轮 置零计时器
         default:
-            counter = 0;
+            counter = -1;
             break;
     }
     counter+=1;

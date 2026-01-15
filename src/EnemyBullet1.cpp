@@ -14,7 +14,7 @@ EnemyBullet1::EnemyBullet1(int x, int y, QObject *parent)
     this->setParent(parent);
     this->loadImgFromFile("enemybullet_1", this->m_imgWidth, this->m_imgHeight);
     //敌人子弹的阵营为3
-    this->setCamp(2);
+    this->setCamp(3);
     //子弹血量为1，击中即销毁
     this->setHp(1);
     this->setMaxHp(1);
