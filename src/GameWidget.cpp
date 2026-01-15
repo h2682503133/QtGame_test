@@ -89,6 +89,8 @@ void GameWidget::gameUpdate()
 
     // 更新所有敌人
     updateAllEnemies();
+    // 检查玩家与敌人之间的碰撞
+    checkPlayerEnemyCollision();
     //更新UI里的得分标签
     ui->label->setText(QString("得分：%1").arg(score));
 

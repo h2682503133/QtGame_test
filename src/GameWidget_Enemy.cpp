@@ -52,14 +52,14 @@ void GameWidget::spawnEnemy()
         enemy->setParent(this);
     }
     //绑定信号槽
-    /*
-    if(enemy && enemy->parent() == this)
+    
+    if(enemy)
     {
         connect(enemy, &EnemyBase::enemyDead, this, [this](int addScore){
             this->score += addScore;
-        }, Qt::UniqueConnection);
+        });
     }
-    */
+    
     //敌机重置状态 加入活跃队列
     if(enemy)
     {
@@ -135,16 +135,7 @@ void GameWidget::checkPlayerEnemyCollision()
     QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
     for (EnemyBase* enemy : enemyList)
     {
-        if (enemy->isAlive())
-        {
-            // 调用GameObject父类的圆形碰撞检测函数
-            if (m_player->isCircleCollide(*enemy))
-            {
-                m_player->takeDamage(enemy->getDamage());  // 玩家扣血
-                gameOver = true;                           // 游戏结束
-                break;
-            }
-        }
+        enemy->checkAllEnemyCollideWithPlayer(m_player,gameOver);
     }
 }
 //初始化敌人生成池

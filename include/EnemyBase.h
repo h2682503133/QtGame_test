@@ -1,6 +1,6 @@
 #ifndef ENEMYBASE_H
 #define ENEMYBASE_H
-
+#include "Player.h"
 #include "GameObject.h"
 #include <QString>
 //敌机类型枚举 标记派生类型同时可用于随机池抽取
@@ -33,6 +33,7 @@ public:
     virtual void loadEnemyResource()=0;  // 加载敌机贴图+碰撞体积(子类必须重写，无默认实现)
     virtual void onEnemyDead();        // 敌机死亡回调 有默认实现：空逻辑，仅标记死亡
     virtual void shootBullet() {}      // 发射子弹 空实现】，有子弹的敌机子类重写即可，无则不动
+    bool checkAllEnemyCollideWithPlayer(Player* player, bool& gameOver); //检测是否与玩家碰撞
     //出界相关
     void checkOutOfWindow(int winHeight); // 出界检测：飞出屏幕底部 → 标记死亡
     bool isEnemyOutOfWindow() const;       // 获取出界状态
@@ -47,7 +48,7 @@ public:
     void setWeight(int weight);
 protected:
     int         m_winWidth;        // 窗口宽度，用于随机生成X坐标、边界判定
-    int         m_scoreReward;     // 击落敌机的加分奖励 有默认值
+    int         m_scoreReward=0;     // 击落敌机的加分奖励 有默认值
     int         m_enemySpeed;      // 敌机移动速度 有默认值
     bool        m_isOutOfWindow;   // 出界标记 默认值：false
     QString     m_imgFilePath;     // 敌机贴图路径 有默认空
