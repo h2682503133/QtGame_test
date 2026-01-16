@@ -34,7 +34,7 @@ public:
     
     virtual void loadEnemyResource()=0;  // 加载敌机贴图+碰撞体积(子类必须重写，无默认实现)
     virtual void onDead();        // 敌机死亡回调
-    bool checkAllEnemyCollideWithPlayer(Player* player, bool& gameOver); //检测是否与玩家碰撞
+    bool checkAllEnemyCollideWithPlayer(Player* player); //检测是否与玩家碰撞
     //出界相关
     void checkOutOfWindow(int winHeight); // 出界检测：飞出屏幕底部 → 标记死亡
     bool isEnemyOutOfWindow() const;       // 获取出界状态

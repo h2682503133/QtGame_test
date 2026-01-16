@@ -25,6 +25,7 @@ GameWidget::GameWidget(QWidget *parent)
     //初始化自机
     playerSpeed = 8;
     m_player = new Player(this->width()/2 - 20, this->height() - 50);
+    m_player->setHp(5);
     m_player->setParent(this);
     connect(m_player, &Player::dead, this, &GameWidget::gameOverSlot);
     QTimer::singleShot(0, this, &GameWidget::initGame);
@@ -72,7 +73,10 @@ void GameWidget::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::red);
         painter.setFont(QFont("Arial", 30));
         painter.drawText(rect(), Qt::AlignCenter, QString("游戏结束\n得分：%1").arg(score));
-        ui->label->hide(); //游戏结束隐藏得分标签
+        //游戏结束隐藏标签
+        ui->label->hide();
+        ui->label_2->hide();
+        ui->label_3->hide();
         return;
     }
     //绘制自机
@@ -112,7 +116,9 @@ void GameWidget::gameUpdate()
     checkBulletCollisions();
 
     // 更新UI里的得分标签
-    ui->label->setText(QString("得分：%1").arg(score));
+    ui->label->setText(QString("得分:%1").arg(score));
+    ui->label_2->setText(QString("血量:%1").arg(m_player->getHp()));
+    ui->label_3->setText(QString("循环池:%1").arg(m_enemyPool.size()));
 
     
     update(); // 刷新画面，移动生效

@@ -186,7 +186,7 @@ void GameObject::takeDamage(int damage)
 {
     if (m_defense >= 1.0f || !m_isAlive) return;
     int realDamage = static_cast<int>(damage * (1 - m_defense));
-    realDamage = qMax(1, realDamage);
+    realDamage = qMax(0, realDamage);
     setHp(m_hp - realDamage);
     if (m_hp <= 0)
     {

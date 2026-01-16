@@ -34,7 +34,7 @@ void EnemyBase::move()
         this->moveOffset(0, m_enemySpeed);
     }
 }
-bool EnemyBase::checkAllEnemyCollideWithPlayer(Player* player, bool& gameOver)
+bool EnemyBase::checkAllEnemyCollideWithPlayer(Player* player)
 {
     if (isAlive())
     {
@@ -42,7 +42,6 @@ bool EnemyBase::checkAllEnemyCollideWithPlayer(Player* player, bool& gameOver)
         if (player->isCircleCollide(*this))
         {
             player->takeDamage(getDamage());  // 玩家扣血
-            gameOver = true;                         // 修改游戏结束标记（引用传参）
             return true;                             // 碰撞触发，直接返回
         }
     }

@@ -35,13 +35,14 @@ void GameWidget::spawnEnemy()
     }
     
     //从敌机池取机 / 自动创建敌机
-    EnemyBase* enemy = getEnemyFromPool();
+    EnemyBase* enemy = getEnemyFromPoolByType(curEnemyType);//enemy=getEnemyFromPool();
+
     if (enemy == nullptr && curCreator != nullptr)
     {
         enemy = curCreator(this->width());
         if(enemy) 
         {   
-            QMetaObject::invokeMethod(enemy, &EnemyBase::loadEnemyResource, Qt::QueuedConnection);
+            QTimer::singleShot(0, enemy, [enemy]() {enemy->loadEnemyResource();});
             enemy->setParent(this);
         }
     }
@@ -62,11 +63,28 @@ void GameWidget::spawnEnemy()
     if(enemy)
     {
         enemy->setAlive(true);
+        enemy->setReady(true);
         enemy->setHp(enemy->getMaxHp());
         int randomX = QRandomGenerator::global()->bounded(0, this->width() - enemy->getImgRect().width());
         enemy->setImgPos(randomX, 0);
         enemy->setCollideCenter(randomX + enemy->getImgRect().width()/2, enemy->getImgRect().height()/2);
     }
+}
+//从对象池获取指定类型闲置敌机
+EnemyBase* GameWidget::getEnemyFromPoolByType(EnemyType targetType)
+{
+    if(!m_enemyPool.empty())
+    // 遍历池，找对应类型的敌机
+    for(int i = 0; i < m_enemyPool.size(); i)
+    {
+        EnemyBase* enemy = m_enemyPool.at(i);
+        if(enemy && enemy->getEnemyType() == targetType)
+        {
+            m_enemyPool.erase(m_enemyPool.begin() + i); // 找到后从池中移除
+            return enemy;
+        }
+    }
+    return nullptr; // 无对应类型，返回空
 }
 //从敌机池获取闲置敌机
 EnemyBase* GameWidget::getEnemyFromPool()
@@ -84,6 +102,7 @@ EnemyBase* GameWidget::getEnemyFromPool()
 void GameWidget::recycleEnemy(EnemyBase* enemy)
 {
     enemy->setAlive(false);
+    enemy->setReady(false);
     m_enemyPool.push_back(enemy);
 }
 
@@ -102,6 +121,7 @@ void GameWidget::updateAllEnemies()
             if (enemy->isEnemyOutOfWindow())
             {
                 recycleEnemy(enemy);
+                enemy->setAlive(false);
             }
         }
         else if(!enemy->isAlive()&&enemy->isReady())
@@ -143,7 +163,7 @@ void GameWidget::checkPlayerEnemyCollision()
     QList<EnemyBase*> enemyList = this->findChildren<EnemyBase*>(Qt::FindDirectChildrenOnly);
     for (EnemyBase* enemy : enemyList)
     {
-        enemy->checkAllEnemyCollideWithPlayer(m_player, gameOver);
+        enemy->checkAllEnemyCollideWithPlayer(m_player);
     }
 }
 //初始化敌人生成池
@@ -153,29 +173,15 @@ void GameWidget::initEnemyTypePool()
     m_weightList.clear();
     m_totalWeight = 0;
 
-    EnemyTypeItem item1;
-    item1.type = EnemyType::NormalEnemy;
-    item1.creator = EnemyNormal::Create;
-    m_enemyTypePool.push_back(item1);
-
-    EnemyTypeItem item2;
-    item2.type = EnemyType::StaticEnemy;
-    item2.creator = EnemyStatic::Create;
-    m_enemyTypePool.push_back(item2);
-    //遍历类型池累加总权重
-    for (const auto& item : m_enemyTypePool)
-    {
-        // 创建临时敌机对象，只为读取权重
-        EnemyBase* tempEnemy = item.creator(this->width());
-        if (tempEnemy)
-        {
-            int enemyWeight = tempEnemy->getWeight(); // 自动读取子类自身的权重
-            m_weightList.push_back(enemyWeight);      // 存入权重列表
-            m_totalWeight += enemyWeight;             // 自动累加总权重
-            tempEnemy->setParent(nullptr);  // 强制解除父对象（防止意外绑定）
-            tempEnemy->deleteLater();       // 延时销毁
-            tempEnemy = nullptr;
-            QCoreApplication::processEvents();
-        }
-    }
+    // 添加类型
+    m_enemyTypePool.push_back({EnemyType::NormalEnemy, EnemyNormal::Create});
+    m_enemyTypePool.push_back({EnemyType::StaticEnemy, EnemyStatic::Create});
+    
+    // 硬编码权重
+    m_weightList.push_back(7);
+    m_weightList.push_back(2);
+    m_totalWeight = 9;
+    
+    // 测试：这里是否会导致卡死？
+    QCoreApplication::processEvents();
 }

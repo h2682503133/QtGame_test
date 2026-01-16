@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "GameWidget.h"
+#include <QMessageBox>
 // 自机构造函数实现
 Player::Player(int x, int y)
     : GameObject(x, y, 40, 50, 18, 8), // 父类传参：坐标x/y、贴图宽40高50、碰撞半径18、移动速度8
@@ -119,7 +120,7 @@ bool Player::isInvincible() const
     return m_isInvincible;
 }
 
-void Player::OnDead()
+void Player::onDead()
 {
     setAlive(false);
     emit dead();

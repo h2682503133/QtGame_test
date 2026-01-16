@@ -26,7 +26,7 @@ public:
     //无敌状态（用于可能拓展无敌道具或调试模式）
     void setInvincible(bool invincible);
     bool isInvincible() const;           
-    void OnDead();
+    void onDead() override;
 private:
     bool m_isInvincible; // 自机无敌标记(额外特性，区别于通用防御系数)
 

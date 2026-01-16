@@ -75,7 +75,7 @@ void GameWidget::checkBulletCollisions()
             {
                 m_player->takeDamage(bullet->getDamage()); // 玩家扣血
                 bullet->takeDamage(1);                    // 子弹击中消耗一次次数
-                if(!m_player->isAlive()) gameOver = true;  // 玩家死亡游戏结束 信号疑似有问题 手动游戏结束
+                break;
             }
         }
     }
